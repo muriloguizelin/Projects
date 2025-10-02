@@ -5,6 +5,12 @@
 
 #define TABLE_SIZE 10
 
+/*
+Simple hash function (djb2 by Dan Bernstein)
+o numero 33 e 5831 foram escolhidos de forma empirica e funcionam bem para misturar os bits, funciona bem e evita colisoes]
+O(n) no pior caso, O(1) no caso médio
+*/
+
 unsigned long hash(const char *str) {
     unsigned long h = 5381;
     int c;
