@@ -1,19 +1,23 @@
-#ifndef HASHTABLE_H
-#define HASHTABLE_H
+    #ifndef HASHTABLE_H
+    #define HASHTABLE_H
 
-typedef struct Entry {
-    char *key;
-    char *value;
-    struct Entry *next;
-} Entry;
+    #include <stddef.h>
 
-typedef struct {
-    Entry **table;
-} HashTable;
+    typedef struct Entry {
+        char *key;
+        char *value;
+        struct Entry *next;
+    } Entry;
 
-HashTable* create_table();
-void insert(HashTable *ht, const char *key, const char *value);
-char* get(HashTable *ht, const char *key);
-void free_table(HashTable *ht);
+    typedef struct HashTable {
+        Entry **table;    
+        size_t size;      
+        size_t count;     
+    } HashTable;
 
-#endif
+    HashTable* create_table(void);
+    void insert(HashTable *ht, const char *key, const char *value);
+    char* get(HashTable *ht, const char *key);
+    void free_table(HashTable *ht);
+
+    #endif

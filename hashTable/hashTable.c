@@ -3,24 +3,26 @@
 #include <string.h>
 #include "hashtable.h"
 
-#define TABLE_SIZE 10
+#define INITIAL_SIZE 10
+#define LOAD_FACTOR_THRESHOLD 0.7
 
 /*
 Simple hash function (djb2 by Dan Bernstein)
-o numero 33 e 5831 foram escolhidos de forma empirica e funcionam bem para misturar os bits, funciona bem e evita colisoes]
-O(n) no pior caso, O(1) no caso médio
+Numbers 33 and 5381 are commonly used and work well to mix bits, providing a decent distribution.
+Average-case O(1), worst-case O(n) per bucket when many keys collide.
 */
 
-unsigned long hash(const char *str) {
+unsigned long hash(const char *str, size_t table_size) {
     unsigned long h = 5381;
     int c;
     while ((c = *str++))
-        h = ((h << 5) + h) + c;
-    return h % TABLE_SIZE;
+        h = ((h << 5) + h) + c; // h * 33 + c 
+    return h % table_size;
 }
 
 Entry* create_entry(const char *key, const char *value) {
     Entry *e = malloc(sizeof(Entry));
+    if (!e) return NULL;
     e->key = strdup(key);
     e->value = strdup(value);
     e->next = NULL;
@@ -29,12 +31,51 @@ Entry* create_entry(const char *key, const char *value) {
 
 HashTable* create_table() {
     HashTable *ht = malloc(sizeof(HashTable));
-    ht->table = calloc(TABLE_SIZE, sizeof(Entry*));
+    if (!ht) return NULL;
+    
+    ht->size = INITIAL_SIZE;
+    ht->count = 0;
+    ht->table = calloc(INITIAL_SIZE, sizeof(Entry*));
+    
+    if (!ht->table) {
+        free(ht);
+        return NULL;
+    }
     return ht;
 }
 
+static int resize_table(HashTable *ht) {
+    size_t new_size = ht->size * 2;
+    Entry **new_table = calloc(new_size, sizeof(Entry*));
+    if (!new_table) return 0;
+
+    for (size_t i = 0; i < ht->size; i++) {
+        Entry *cur = ht->table[i];
+        while (cur) {
+            Entry *next = cur->next;
+            unsigned long new_idx = hash(cur->key, new_size);
+            
+            cur->next = new_table[new_idx];
+            new_table[new_idx] = cur;
+            
+            cur = next;
+        }
+    }
+
+    free(ht->table);
+    ht->table = new_table;
+    ht->size = new_size;
+    return 1;
+}
+
 void insert(HashTable *ht, const char *key, const char *value) {
-    unsigned long idx = hash(key);
+    if ((float)ht->count / ht->size >= LOAD_FACTOR_THRESHOLD) {
+        if (!resize_table(ht)) {
+            fprintf(stderr, "Warning: Failed to resize hash table\n");
+        }
+    }
+
+    unsigned long idx = hash(key, ht->size);
     Entry *head = ht->table[idx];
 
     for (Entry *cur = head; cur; cur = cur->next) {
@@ -46,12 +87,17 @@ void insert(HashTable *ht, const char *key, const char *value) {
     }
 
     Entry *new_e = create_entry(key, value);
+    if (!new_e) {
+        fprintf(stderr, "Error: Failed to create new entry\n");
+        return;
+    }
     new_e->next = head;
     ht->table[idx] = new_e;
+    ht->count++;
 }
 
 char* get(HashTable *ht, const char *key) {
-    unsigned long idx = hash(key);
+    unsigned long idx = hash(key, ht->size);
     for (Entry *cur = ht->table[idx]; cur; cur = cur->next) {
         if (strcmp(cur->key, key) == 0) {
             return cur->value;
@@ -61,7 +107,8 @@ char* get(HashTable *ht, const char *key) {
 }
 
 void free_table(HashTable *ht) {
-    for (int i = 0; i < TABLE_SIZE; i++) {
+    if (!ht) return;
+    for (size_t i = 0; i < ht->size; i++) {
         Entry *cur = ht->table[i];
         while (cur) {
             Entry *next = cur->next;
