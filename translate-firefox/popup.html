@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Palavras Salvas</title>
+  <style>
+    body {
+      width: 350px;
+      height: 500px;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #1e1e2e;
+      color: #cdd6f4;
+      margin: 0;
+      padding: 16px;
+      overflow-y: auto;
+    }
+    h2 {
+      margin-top: 0;
+      color: #89b4fa;
+      border-bottom: 1px solid #45475a;
+      padding-bottom: 8px;
+    }
+    .word-card {
+      background: #313244;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 10px;
+      position: relative;
+    }
+    .word-original {
+      font-weight: bold;
+      color: #f9e2af;
+      margin-bottom: 4px;
+    }
+    .word-translated {
+      color: #a6e3a1;
+    }
+    .word-meta {
+      font-size: 10px;
+      color: #6c7086;
+      margin-top: 6px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .delete-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: none;
+      border: none;
+      color: #f38ba8;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .delete-btn:hover {
+      color: #fab387;
+    }
+    #empty-msg {
+      text-align: center;
+      color: #6c7086;
+      margin-top: 40px;
+    }
+    .actions {
+      margin-bottom: 10px;
+      text-align: right;
+    }
+    .clear-btn {
+      background: #f38ba8;
+      color: #1e1e2e;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Palavras Salvas</h2>
+  <div class="actions">
+    <button id="clear-all" class="clear-btn">Limpar Tudo</button>
+  </div>
+  <div id="word-list"></div>
+  <script src="popup.js"></script>
+</body>
+</html>

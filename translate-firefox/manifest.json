@@ -1,0 +1,49 @@
+{
+    "manifest_version": 3,
+    "name": "Zen Translate & Save",
+    "version": "1.0",
+    "description": "Traduz palavras selecionadas e salva em uma lista.",
+    "permissions": [
+        "activeTab",
+        "contextMenus",
+        "storage",
+        "scripting"
+    ],
+    "background": {
+        "scripts": [
+            "background.js"
+        ]
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "content.js"
+            ],
+            "css": [
+                "styles.css"
+            ]
+        }
+    ],
+    "action": {
+        "default_popup": "popup.html",
+        "default_title": "Ver palavras salvas"
+    },
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "zen-translate@user.dev",
+            "strict_min_version": "109.0"
+        }
+    },
+    "commands": {
+        "translate-selection-command": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+B",
+                "mac": "Command+Shift+B"
+            },
+            "description": "Traduzir texto selecionado"
+        }
+    }
+}
